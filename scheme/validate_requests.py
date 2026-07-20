@@ -3,7 +3,7 @@ from typing import List, Dict, Union, Literal, Optional
 from uuid import UUID
 
 
-class BaseRequest(BaseModel):
+class SqsMessage(BaseModel):
     collection_type: Literal["name", "pokemon_number", "pokemon_range"]
     collection_id: UUID
 
@@ -21,3 +21,7 @@ class BaseRequest(BaseModel):
             raise ValueError("p_range must be provided when collection_type is 'pokemon_range'")
         return self
 
+#sqs_message = SqsMessage(p_name=[""])
+
+
+#sqs_message
