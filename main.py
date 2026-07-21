@@ -7,9 +7,9 @@ from scheme.validate_requests import SqsMessage, sqs_adapter
 def main():
 
     message1 = {
-        "collection_type": "name",
+        "collection_type": "pokemon_number",
         "collection_id": str(uuid.uuid4()), 
-        "p_name": "pikachu"
+        "p_number": 3
     }
 
     message2 = {

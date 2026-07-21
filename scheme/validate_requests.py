@@ -11,7 +11,7 @@ class NameCollectionRequest(BaseModel):
 class NumberCollectionRequest(BaseModel):
     collection_type: Literal["pokemon_number"]
     collection_id: UUID
-    p_number: str  
+    p_number: int  
 
 class RangeCollectionRequest(BaseModel):
     collection_type: Literal["pokemon_range"]
@@ -20,8 +20,7 @@ class RangeCollectionRequest(BaseModel):
 
 SqsMessage = Union[NameCollectionRequest, NumberCollectionRequest, RangeCollectionRequest]
 sqs_adapter = TypeAdapter(SqsMessage)
+
 #sqs_message = SqsMessage(p_name=[""])
-
-
 #sqs_message
 #‹
