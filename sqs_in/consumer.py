@@ -1,4 +1,4 @@
-from scheme.validate_requests import get_sqs_client
+from sqs_in.create_sqs import get_sqs_client
 
 #Input url_sqs and I return the messages
 def receive_messages(queue_url):
@@ -8,6 +8,11 @@ def receive_messages(queue_url):
     message = response.get("Messages", [])
     return message
 
+
+def delete_message(queue_url, receipt_handle):
+    client = get_sqs_client()
+    client.delete_message(QueueUrl=queue_url,ReceiptHandle=receipt_handle)
+
 #raw_message = receive_messages(queue_url)
-#       
+#  
     
