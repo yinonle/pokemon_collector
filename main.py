@@ -1,7 +1,10 @@
 import uuid
 from moto import mock_aws
+
 from sqs_in.create_sqs import create_sqs, send_message
+from sqs_in.consumer import receive_messages
 from scheme.validate_requests import SqsMessage, sqs_adapter
+
 
 @mock_aws
 def main():
@@ -24,6 +27,7 @@ def main():
     send_message(queue_url, message1)
     #send_message(queue_url, message1)
 
+    message_sqs = receive_messages(queue_url)
     print(f"Message sent to queue: {queue_url}")
 
 if __name__ == "__main__":

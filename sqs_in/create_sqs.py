@@ -6,5 +6,6 @@ def get_sqs_client():
 def create_sqs():
     client = get_sqs_client()
     response = client.create_queue(QueueName = "sqs_in")
+    print(response)
     return response["QueueUrl"]
 
