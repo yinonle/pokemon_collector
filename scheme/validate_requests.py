@@ -1,27 +1,27 @@
-from pydantic import BaseModel, TypeAdapter, model_validator
-from typing import List, Dict, Union, Literal, Optional
+from pydantic import BaseModel, TypeAdapter, Field
+from typing import Literal, Union
 from uuid import UUID
 
 
-class SqsMessage(BaseModel):
-    collection_type: Literal["name", "pokemon_number", "pokemon_range"]
+class NameCollectionRequest(BaseModel):
+    collection_type: Literal["name"]
     collection_id: UUID
+    p_name: str  
 
-    p_name: Optional[str] = None
-    p_number: Optional[str] = None
-    p_range: Optional[str] = None
+class NumberCollectionRequest(BaseModel):
+    collection_type: Literal["pokemon_number"]
+    collection_id: UUID
+    p_number: str  
 
-    @model_validator(mode="after")
-    def validate_fields_by_type(self):
-        if self.collection_type == "name" and not self.p_name:
-            raise ValueError("p_name must be provided when collection_type is 'name'")
-        elif self.collection_type == "pokemon_number" and not self.p_number:
-            raise ValueError("p_number must be provided when collection_type is 'pokemon_number'")
-        elif self.collection_type == "pokemon_range" and not self.p_range:
-            raise ValueError("p_range must be provided when collection_type is 'pokemon_range'")
-        return self
+class RangeCollectionRequest(BaseModel):
+    collection_type: Literal["pokemon_range"]
+    collection_id: UUID
+    p_range: str  
 
+SqsMessage = Union[NameCollectionRequest, NumberCollectionRequest, RangeCollectionRequest]
+sqs_adapter = TypeAdapter(SqsMessage)
 #sqs_message = SqsMessage(p_name=[""])
 
 
 #sqs_message
+#‹
