@@ -1,11 +1,11 @@
 import json
 
 from scheme.validate_requests import sqs_adapter
-from sqs_in.consumer import receive_messages
+from sqs_in.consumer import get_messages
 
 
 def process_message(queue_url):
-    messages = receive_messages(queue_url)
+    messages = get_messages(queue_url)
 
     if not messages:
         print("There isn't requests in the sqs!")
@@ -20,6 +20,7 @@ def process_message(queue_url):
             message_dict = json.loads(message_body)
             validated = sqs_adapter.validate_python(message_dict)
             results.append({"valid": True, "data": validated, "error": None, "receipt_handle": receipt_handle})
+            
         except Exception as e:
             results.append({"valid": False, "data": None, "error": str(e), "receipt_handle": receipt_handle})
     

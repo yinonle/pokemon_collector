@@ -1,7 +1,7 @@
 from sqs_in.create_sqs import get_sqs_client
 
 #Input url_sqs and I return the messages
-def receive_messages(queue_url):
+def get_messages(queue_url):
     client = get_sqs_client()
 
     response = client.receive_message(QueueUrl=queue_url, MaxNumberOfMessages=1, WaitTimeSeconds=10) 
