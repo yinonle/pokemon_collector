@@ -3,8 +3,8 @@ from DB.data_base import engine
 def test_db_connection():
     try: 
         with engine.connect() as connection:
-            print("Connection success")
-            
+            print("Connection success!!!")
+
     except Exception as e:
         print("Connection faild")
         print(e)
