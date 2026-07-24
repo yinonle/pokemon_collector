@@ -5,8 +5,7 @@ from DB.models import PokedexModel, ReceiptModel
 def init_db():
     Base.metadata.create_all(bind = engine)
 
-
-def get_pokemon_drom_db(name: str):
+def get_pokemon_from_db(name: str):
     db = SessionLocal()
 
     try:
@@ -31,6 +30,7 @@ def save_pokemon_to_db(pokemon_data: dict):
         db.add(new_pokemon)
         db.commit()
         db.refresh(new_pokemon)
+        return new_pokemon
 
     except Exception as e:
         db.rollback()
@@ -39,7 +39,20 @@ def save_pokemon_to_db(pokemon_data: dict):
     finally:
         db.close()
 
+def create_receipt(pokemon_name: str, status: str):
+    db = SessionLocal()
+    try:
+        new_receipt = ReceiptModel(pokemon_name = pokemon_name, status = status)
+        db.add(new_receipt)
+        db.commit()
+        db.refresh(new_receipt)
+        return new_receipt
+    except Exception as e:
+        db.rollback()
+        raise e
 
+    finally:
+        db.close()            
 
 
 
