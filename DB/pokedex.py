@@ -8,6 +8,7 @@ def init_db():
 
 def get_pokemon_drom_db(name: str):
     db = SessionLocal()
+
     try:
         pokemon = (
             db.query(PokedexModel).filter(PokedexModel.p_name.ilike(name)).first())
@@ -15,5 +16,31 @@ def get_pokemon_drom_db(name: str):
     
     finally:
         db.close()
+
+def save_pokemon_to_db(pokemon_data: dict):
+    db = SessionLocal()
+
+    try:
+        new_pokemon = PokedexModel(
+        p_number = pokemon_data.get("p_number"),
+        p_name = pokemon_data.get("p_name"),
+        types = pokemon_data.get("types", []),
+        height = str(pokemon_data.get("height", "")),
+        weight = str(pokemon_data.get("weight", "")),
+        evolutions = pokemon_data.get("evolutions", []),)
+        db.add(new_pokemon)
+        db.commit()
+        db.refresh(new_pokemon)
+
+    except Exception as e:
+        db.rollback()
+        raise e
+    
+    finally:
+        db.close()
+
+
+
+
 
 
