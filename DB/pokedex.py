@@ -1,59 +1,77 @@
-from DB.data_base import SessionLocal, Base, engine
+from typing import Optional, Union
+
+from DB.data_base import Base, SessionLocal, engine
 from DB.models import PokedexModel, ReceiptModel
 
 
-def init_db():
-    Base.metadata.create_all(bind = engine)
+class PokedexRepository:
 
-def get_pokemon_from_db(name: str):
-    db = SessionLocal()
+    def __init__(self, session_factory=SessionLocal):
+        self.session_factory = session_factory
 
-    try:
-        pokemon = (
-            db.query(PokedexModel).filter(PokedexModel.p_name.ilike(name)).first())
-        return pokemon
+
+    @staticmethod
+    def init_db():
+        """Creates all database tables based on defined SQLAlchemy models."""
+        Base.metadata.create_all(bind=engine)
+
+
+
+    def get_pokemon_from_db(self, identifier_pok: Union[str, int]) -> Optional[PokedexModel]:
+        #‹
+
+        with self.session_factory() as db:
+            if isinstance(identifier_pok, int):
+                return (db.query(PokedexModel).filter(PokedexModel.serial_number == identifier_pok).first())
+                
+            elif isinstance(identifier_pok, str) and identifier_pok.isdigit():
+                return (db.query(PokedexModel).filter(PokedexModel.serial_number == int(identifier_pok)).first())
+            
+            else:
+                return (db.query(PokedexModel).filter(PokedexModel.name.ilike(identifier_pok)).first())
+
+
+    def save_pokemon_to_db(self, pokemon_data: dict) -> PokedexModel:
+        
+        with self.session_factory() as db:
+            try:
+                new_pokemon = PokedexModel(
+                    serial_number = pokemon_data.get("serial_number"),
+                    name = pokemon_data.get("name"),
+                    type = pokemon_data.get("type"),
+                    height = pokemon_data.get("height", ""),
+                    weight = pokemon_data.get("weight", ""),
+                    evolution_links = pokemon_data.get("evolution_links", []),
+                )
+
+                db.add(new_pokemon)
+                db.commit()
+                db.refresh(new_pokemon)
+                return new_pokemon
+            
+            except Exception as e:
+                db.rollback()
+                raise e
     
-    finally:
-        db.close()
-
-def save_pokemon_to_db(pokemon_data: dict):
-    db = SessionLocal()
-
-    try:
-        new_pokemon = PokedexModel(
-        p_number = pokemon_data.get("p_number"),
-        p_name = pokemon_data.get("p_name"),
-        types = pokemon_data.get("types", []),
-        height = str(pokemon_data.get("height", "")),
-        weight = str(pokemon_data.get("weight", "")),
-        evolutions = pokemon_data.get("evolutions", []),)
-        db.add(new_pokemon)
-        db.commit()
-        db.refresh(new_pokemon)
-        return new_pokemon
-
-    except Exception as e:
-        db.rollback()
-        raise e
-    
-    finally:
-        db.close()
-
-def create_receipt(pokemon_name: str, status: str):
-    db = SessionLocal()
-    try:
-        new_receipt = ReceiptModel(pokemon_name = pokemon_name, status = status)
-        db.add(new_receipt)
-        db.commit()
-        db.refresh(new_receipt)
-        return new_receipt
-    except Exception as e:
-        db.rollback()
-        raise e
-
-    finally:
-        db.close()            
 
 
-
-
+    def create_receipt(self, collection_id: str, status: str, 
+                       count_from_cache: int = 0, count_from_website: int = 0,) -> ReceiptModel:
+        
+        with self.session_factory() as db:
+            try:
+                new_receipt = ReceiptModel(
+                    collection_id = collection_id,
+                    collection_status = status,
+                    collection_count_from_cache = count_from_cache,
+                    collection_count_from_website = count_from_website,
+                )
+                db.add(new_receipt)
+                db.commit()
+                db.refresh(new_receipt)
+                return new_receipt
+            
+            except Exception as e:
+                db.rollback()
+                raise e
+        

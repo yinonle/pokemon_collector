@@ -16,9 +16,10 @@ class PokedexModel(Base):
 
 
 class ReceiptModel(Base):
-    __tablename__ = "receipts"
+    __tablename__ = "receipt"
 
-    id = Column(Integer, primary_key = True, autoincrement = True)
-    pokemon_name = Column(String(100), nullable = True)
-    status = Column(String(50), nullable = False)  
-    timestamp = Column(DateTime, server_default = func.now())
+    collection_id = Column(String(36), primary_key = True)
+    collection_time = Column(DateTime, server_default = func.now())
+    collection_status = Column(String(50), nullable = False)
+    collection_count_from_cache = Column(Integer, default = 0, nullable = False)
+    collection_count_from_website = Column(Integer, default = 0, nullable = False)
