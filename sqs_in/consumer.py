@@ -4,7 +4,7 @@ from sqs_in.create_sqs import get_sqs_client
 def get_messages(queue_url):
     client = get_sqs_client()
 
-    response = client.receive_message(QueueUrl=queue_url, MaxNumberOfMessages=1, WaitTimeSeconds=10) 
+    response = client.receive_message(QueueUrl = queue_url, MaxNumberOfMessages=1, WaitTimeSeconds=10) 
     message = response.get("Messages", [])
     return message
 

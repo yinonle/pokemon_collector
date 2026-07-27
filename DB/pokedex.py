@@ -6,21 +6,20 @@ from DB.models import PokedexModel, ReceiptModel
 
 class PokedexRepository:
 
-    def __init__(self, session_factory=SessionLocal):
-        self.session_factory = session_factory
+    def __init__(self, session_maker = SessionLocal):
+        self.session_maker = session_maker
 
 
     @staticmethod
     def init_db():
-        """Creates all database tables based on defined SQLAlchemy models."""
-        Base.metadata.create_all(bind=engine)
+        Base.metadata.create_all(bind = engine)
 
 
 
     def get_pokemon_from_db(self, identifier_pok: Union[str, int]) -> Optional[PokedexModel]:
         #‹
 
-        with self.session_factory() as db:
+        with self.session_maker() as db:
             if isinstance(identifier_pok, int):
                 return (db.query(PokedexModel).filter(PokedexModel.serial_number == identifier_pok).first())
                 
@@ -32,8 +31,7 @@ class PokedexRepository:
 
 
     def save_pokemon_to_db(self, pokemon_data: dict) -> PokedexModel:
-        
-        with self.session_factory() as db:
+        with self.session_maker() as db:
             try:
                 new_pokemon = PokedexModel(
                     serial_number = pokemon_data.get("serial_number"),
@@ -50,15 +48,15 @@ class PokedexRepository:
                 return new_pokemon
             
             except Exception as e:
-                db.rollback()
+                #db.rollback()
                 raise e
     
 
 
-    def create_receipt(self, collection_id: str, status: str, 
+    def save_to_receipt(self, collection_id: str, status: str, 
                        count_from_cache: int = 0, count_from_website: int = 0,) -> ReceiptModel:
         
-        with self.session_factory() as db:
+        with self.session_maker() as db:
             try:
                 new_receipt = ReceiptModel(
                     collection_id = collection_id,
@@ -72,6 +70,6 @@ class PokedexRepository:
                 return new_receipt
             
             except Exception as e:
-                db.rollback()
+                #db.rollback()
                 raise e
         

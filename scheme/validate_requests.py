@@ -1,4 +1,4 @@
-from pydantic import BaseModel, TypeAdapter, field_validator
+from pydantic import BaseModel, TypeAdapter, field_validator,Field
 from typing import Literal, Union, List
 from uuid import UUID
 
@@ -11,14 +11,16 @@ class NameCollectionRequest(BaseModel):
 class NumberCollectionRequest(BaseModel):
     collection_type: Literal["pokemon_number"]
     collection_id: UUID
-    p_number: int  
+    p_number: int = Field(gt=0, lt=101) 
 
-    @field_validator("p_number")
-    @classmethod
-    def validate_scope(cls, num_in_range: int) -> int:
-        if not (1 <= num_in_range <=100):
-            raise ValueError(f"Pokemon number {num_in_range} is out from the allowd range: 1 - 100")
-        return num_in_range
+    
+    # @field_validator("p_number")
+    #@classmethod
+    ##   if not (1 <= num_in_range <=100):
+      #      raise ValueError(f"Pokemon number {num_in_range} is out from the allowd range: 1 - 100")
+       # return num_in_range
+    
+
 
 
 
@@ -52,7 +54,7 @@ class RangeCollectionRequest(BaseModel):
         return list(range(int(start_str), int(end_str) + 1))
 
 
-
+#TODO export the parse of range
 SqsMessage = Union[NameCollectionRequest, NumberCollectionRequest, RangeCollectionRequest]
 sqs_adapter = TypeAdapter(SqsMessage)
 
