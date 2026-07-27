@@ -1,5 +1,5 @@
-from pydantic import BaseModel, TypeAdapter, field_validator,Field
-from typing import Literal, Union, List
+from pydantic import BaseModel, TypeAdapter, field_validator, Field
+from typing import Literal, Union, List, Dict, Any
 from uuid import UUID
 
 
@@ -20,9 +20,6 @@ class NumberCollectionRequest(BaseModel):
       #      raise ValueError(f"Pokemon number {num_in_range} is out from the allowd range: 1 - 100")
        # return num_in_range
     
-
-
-
 
 class RangeCollectionRequest(BaseModel):
     collection_type: Literal["pokemon_range"]
@@ -61,4 +58,19 @@ sqs_adapter = TypeAdapter(SqsMessage)
 #sqs_message = SqsMessage(p_name=[""])
 #sqs_message
 #‹
+
+class PokemonModel(BaseModel):
+    serial_number: int = Field(gt=0, lt=101)
+    name: str
+    type: str
+    weight: str
+    height: str
+    evolution_links: List[str]
+
+
+class CollectorOutputResponse(BaseModel):
+    collection_id: UUID
+    pokelist: List[PokemonModel]
+    failed_list: List[str]
+
 
