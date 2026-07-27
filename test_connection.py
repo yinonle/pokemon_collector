@@ -1,108 +1,98 @@
-from DB.data_base import engine
-from DB.pokedex import (
-    create_receipt,
-    get_pokemon_from_db,
-    init_db,
-    save_pokemon_to_db,
-)
+import pytest
+from scraper.parser import PokemonParser
+from scraper.scraper import PokemonScraper
+
+# Sample HTML fixture representing a mocked PokemonDB page structure
+SAMPLE_HTML = """
+<html>
+  <body>
+    <h1>Bulbasaur</h1>
+    <table class="vitals-table">
+      <tbody>
+        <tr>
+          <th>National №</th>
+          <td><strong>#0001</strong></td>
+        </tr>
+        <tr>
+          <th>Type</th>
+          <td>
+            <a class="type-icon type-grass" href="/type/grass">Grass</a>
+            <a class="type-icon type-poison" href="/type/poison">Poison</a>
+          </td>
+        </tr>
+        <tr>
+          <th>Height</th>
+          <td>0.7 m (2′04″)</td>
+        </tr>
+        <tr>
+          <th>Weight</th>
+          <td>6.9 kg (15.2 lbs)</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="infocard-list-evo">
+      <a class="ent-name" href="/pokedex/ivysaur">Ivysaur</a>
+    </div>
+  </body>
+</html>
+"""
 
 
-def test_db_connection():
-    """Tests basic database connection using the SQLAlchemy engine."""
-    print("--- 1. Testing Database Connection ---")
-    try:
-        with engine.connect() as connection:
-            print("Database connection success!!!")
-            return True
-    except Exception as e:
-        print("Database connection failed!")
-        print(f"Error: {e}")
-        return False
+class TestPokemondbParser:
+    """Unit tests for PokemondbParser using mocked HTML content."""
+
+    def test_parse_valid_pokemon_html(self):
+        """Tests that HTML is correctly parsed into a structured dictionary."""
+        parser = PokemonParser(base_url="https://pokemondb.net")
+        result = parser.parse(SAMPLE_HTML)
+
+        assert result["serial_number"] == 1
+        assert result["name"] == "Bulbasaur"
+        assert result["type"] == "Grass/Poison"
+        assert result["height"] == "0.7 m"
+        assert result["weight"] == "6.9 kg"
+        assert result["evolution_links"] == [
+            "https://pokemondb.net/pokedex/ivysaur"
+        ]
+
+    def test_parse_missing_vitals_table_raises_value_error(self):
+        """Tests that ValueError is raised if vitals table is absent from HTML."""
+        parser = PokemonParser(base_url="https://pokemondb.net")
+        invalid_html = "<html><body><h1>No Vitals Table Here</h1></body></html>"
+
+        with pytest.raises(ValueError, match="Failed to locate vitals table"):
+            parser.parse(invalid_html)
 
 
-def test_init_db():
-    """Tests table creation in PostgreSQL."""
-    print("\n--- 2. Testing init_db() ---")
-    try:
-        init_db()
-        print("Tables initialized successfully in PostgreSQL!")
-    except Exception as e:
-        print(f"Failed to initialize tables: {e}")
+class TestPokemondbScraperIntegration:
+    """Integration tests executing real network requests against pokemondb.net."""
 
+    @pytest.fixture
+    def scraper(self):
+        """Fixture supplying a PokemondbScraper instance."""
+        return PokemonScraper()
 
-def test_save_pokemon():
-    """Tests saving a mock Pokemon into the database."""
-    print("\n--- 3. Testing save_pokemon_to_db() ---")
-    sample_pokemon = {
-        "p_number": 25,
-        "p_name": "Pikachu",
-        "types": ["Electric"],
-        "height": "0.4m",
-        "weight": "6.0kg",
-        "evolutions": ["Pichu", "Pikachu", "Raichu"],
-    }
+    def test_scrape_pokemon_by_number(self, scraper):
+        """Tests live scraping for Pokemon #1 (Bulbasaur)."""
+        data = scraper.scrape_pokemon(1)
 
-    try:
-        saved_pokemon = save_pokemon_to_db(sample_pokemon)
-        print(f"Successfully saved Pokemon to DB:")
-        print(f"  Number: {saved_pokemon.p_number}")
-        print(f"  Name: {saved_pokemon.p_name}")
-        print(f"  Types: {saved_pokemon.types}")
-        return saved_pokemon
-    except Exception as e:
-        print(f"Failed to save Pokemon: {e}")
-        return None
+        assert data["serial_number"] == 1
+        assert data["name"] == "Bulbasaur"
+        assert "Grass" in data["type"]
+        assert "m" in data["height"]
+        assert "kg" in data["weight"]
+        assert isinstance(data["evolution_links"], list)
 
+    def test_scrape_pokemon_by_name(self, scraper):
+        """Tests live scraping for Pokemon by name ('pikachu')."""
+        data = scraper.scrape_pokemon("pikachu")
 
-def test_get_pokemon():
-    """Tests fetching a Pokemon by name from the database (case-insensitive)."""
-    print("\n--- 4. Testing get_pokemon_from_db() ---")
-    search_name = "pikachu"
-    try:
-        pokemon = get_pokemon_from_db(search_name)
-        if pokemon:
-            print(f"Successfully fetched Pokemon '{search_name}' from DB:")
-            print(f"  Found Name: {pokemon.p_name}")
-            print(f"  Evolutions: {pokemon.evolutions}")
-        else:
-            print(f"Pokemon '{search_name}' was not found in the database.")
-    except Exception as e:
-        print(f"Failed to fetch Pokemon: {e}")
+        assert data["serial_number"] == 25
+        assert data["name"] == "Pikachu"
+        assert data["type"] == "Electric"
 
-
-def test_create_receipt():
-    """Tests creating an audit receipt record in the database."""
-    print("\n--- 5. Testing create_receipt() ---")
-    pokemon_name = "pikachu"
-    status = "SUCCESS"
-
-    try:
-        receipt = create_receipt(pokemon_name=pokemon_name, status=status)
-        print("Successfully created receipt record:")
-        print(f"  Receipt ID: {receipt.id}")
-        print(f"  Pokemon: {receipt.pokemon_name}")
-        print(f"  Status: {receipt.status}")
-        print(f"  Timestamp: {receipt.timestamp}")
-    except Exception as e:
-        print(f"Failed to create receipt: {e}")
-
-
-def run_all_tests():
-    """Executes all database test functions sequentially."""
-    print("==========================================")
-    print("       STARTING DATABASE SUITE TEST       ")
-    print("==========================================")
-
-    if test_db_connection():
-        test_init_db()
-        test_save_pokemon()
-        test_get_pokemon()
-        test_create_receipt()
-
-    print("\n==========================================")
-    print("       FINISHED DATABASE SUITE TEST       ")
-    print("==========================================")
-
-
-if __name__ == "__main__":
-    run_all_tests()
+    def test_scrape_non_existent_pokemon_raises_error(self, scraper):
+        """Tests that non-existent pokemon triggers 404 ValueError."""
+        with pytest.raises(ValueError, match="not found on pokemondb.net"):
+            scraper.scrape_pokemon("non_existent_pokemon_xyz_999")
+            print("SUCCES!!")

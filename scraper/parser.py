@@ -1,17 +1,17 @@
-from typing import Any, Dict, Union
+from typing import Any, Dict, List
 from bs4 import BeautifulSoup
 
-class ParserPokemon_Page:
+class PokemonParser:
+
     def __init__(self, base_url: str):
-        self.base_url = base_url
-
-    def parse_pokemon_page(self, content_page: str) -> Dict[str, Any]:
-
-        soup = BeautifulSoup(content_page, "html.parser")
-        vitals_table = soup.select_one("table.vitals_table")
+        self.base_url = base_url.rstrip("/")
         
+    def parse(self, html_content: str) -> Dict[str, Any]:
+        soup = BeautifulSoup(html_content, "html.parser")
+        vitals_table = soup.select_one("table.vitals-table")
+
         if not vitals_table:
-            raise ValueError("vitals table are not found on pokemon page.")
+            raise ValueError("Failed to locate vitals table")
 
         return {
             "serial_number": self._extract_serial_number(vitals_table),
@@ -32,8 +32,14 @@ class ParserPokemon_Page:
         return h1.text.strip() if h1 else ""
     
     def _extract_types(self, vitals_table: BeautifulSoup) -> str:
-        types = [a.text.strip() for a in vitals_table.select("a.type-icon")]
+        types = []
+        matching_tags = vitals_table.select("a.type-icon")
+        for a in matching_tags:
+            clean_text = a.text.strip()
+            types.append(clean_text)
+
         return "/".join(types)
+    
 
     def _extract_vital_field(self, vitals_table: BeautifulSoup, field_name: str) -> str:
         for row in vitals_table.select("tr"):

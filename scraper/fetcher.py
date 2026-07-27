@@ -1,19 +1,15 @@
-from typing import Any, Dict, Union
-from bs4 import BeautifulSoup
+from typing import Union
 import httpx
-
 from scheme.config import settings
 
 
-class PokemonScraper:
+class PokemonFetcher:
 
     def __init__(self, base_url: str = settings.POKEMON_BASE_URL):
         self.base_url = base_url.rstrip("/")
-
-        self.headers = {"User_agent": settings.USER_AGENT}
-
-    def _fetch_data(self,identifier: Union[str, int]) -> str:
-
+        self.headers = {"User-Agent": settings.USER_AGENT}
+        
+    def fetch_pokemon_html(self,identifier: Union[str, int]) -> str:
         url = f"{self.base_url}/pokedex/{identifier}"
 
         with httpx.Client(headers = self.headers, follow_redirects = True, timeout = 10.0) as client:
