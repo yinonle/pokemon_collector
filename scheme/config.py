@@ -19,7 +19,7 @@ class Settings(BaseSettings):
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/120.0.0.0 Safari/537.36")
 
-    LOCAL_JSON_FILE_PATH: str = "pokedex_backup.json"
+    JSON_FILE_PATH: str = "pokedex_backup.json"
     LOG_LEVEL: str = "INFO"
     LOG_FILE_PATH: str = "app.log"
 

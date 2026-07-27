@@ -95,4 +95,4 @@ class TestPokemondbScraperIntegration:
         """Tests that non-existent pokemon triggers 404 ValueError."""
         with pytest.raises(ValueError, match="not found on pokemondb.net"):
             scraper.scrape_pokemon("non_existent_pokemon_xyz_999")
-            print("SUCCES!!")
+            
