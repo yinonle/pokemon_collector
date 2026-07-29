@@ -22,6 +22,7 @@ class PokemonParser:
             "evolution_links": self._extract_evolutions(soup),
         }
 
+
             
     def _extract_serial_number(self, vitals_table: BeautifulSoup) -> int:
         strong = vitals_table.select_one("strong")
@@ -33,8 +34,8 @@ class PokemonParser:
     
     def _extract_types(self, vitals_table: BeautifulSoup) -> str:
         types = []
-        matching_tags = vitals_table.select("a.type-icon")
-        for a in matching_tags:
+        tags = vitals_table.select("a.type-icon")
+        for a in tags:
             clean_text = a.text.strip()
             types.append(clean_text)
 

@@ -7,19 +7,18 @@ class PokedexModel(Base):
     __tablename__ = "pokedex"
 
     p_number = Column(Integer, primary_key = True, index = True)
-    p_name = Column(String(100), unique = True, nullable = False, index = True)
+    p_name = Column(String, unique = True, nullable = False, index = True)
     types = Column(JSON)
-    height = Column(String(50))
-    weight = Column(String(50))
+    height = Column(String)
+    weight = Column(String)
     evolutions = Column(JSON)
-    created_at = Column(DateTime, server_default = func.now())
 
 
 class ReceiptModel(Base):
     __tablename__ = "receipt"
 
-    collection_id = Column(String(36), primary_key = True)
+    collection_id = Column(String, primary_key = True)
     collection_time = Column(DateTime, server_default = func.now())
-    collection_status = Column(String(50), nullable = False)
+    collection_status = Column(String, nullable = False)
     collection_count_from_cache = Column(Integer, default = 0, nullable = False)
     collection_count_from_website = Column(Integer, default = 0, nullable = False)

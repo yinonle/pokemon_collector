@@ -10,7 +10,7 @@ class PokemonFetcher:
         self.headers = {"User-Agent": settings.USER_AGENT}
         
     def fetch_pokemon_html(self,identifier: Union[str, int]) -> str:
-        url = f"{self.base_url}/pokedex/{identifier}"
+        url = f"{self.base_url}{identifier}"
 
         with httpx.Client(headers = self.headers, follow_redirects = True, timeout = 10.0) as client:
             response = client.get(url)

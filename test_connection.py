@@ -1,91 +1,147 @@
-import os
+import uuid
+from unittest.mock import MagicMock
 import pytest
-from utils.json_backup import JsonBackupHandler
+
+from scraper.collector import CollectorService
+from scheme.validate_requests import CollectorOutputResponse
 
 
-class TestJsonBackupHandler:
-    """Unit tests for JsonBackupHandler verifying local JSON persistence and key formatting."""
+@pytest.fixture
+def mock_dependencies():
+    """Fixture to create mocked dependencies for CollectorService."""
+    mock_repo = MagicMock()
+    mock_scraper = MagicMock()
+    mock_backup = MagicMock()
 
-    def test_load_backup_returns_empty_dict_when_file_does_not_exist(self, tmp_path):
-        """Tests that loading a non-existent file returns an empty dictionary without errors."""
-        test_file = tmp_path / "non_existent_pokedex.json"
-        handler = JsonBackupHandler(file_path=str(test_file))
+    return mock_repo, mock_scraper, mock_backup
 
-        data = handler.load_backup()
 
-        assert data == {}
-        assert not os.path.exists(test_file)
+@pytest.fixture
+def service(mock_dependencies):
+    """Fixture to instantiate CollectorService with mocked dependencies."""
+    mock_repo, mock_scraper, mock_backup = mock_dependencies
+    return CollectorService(
+        pokedex_repo=mock_repo,
+        scraper=mock_scraper,
+        backup_file=mock_backup,
+    )
 
-    def test_save_pokemon_batch_creates_file_and_formats_keys(self, tmp_path):
-        """Tests that saving a batch correctly pads serial numbers to 3-digit string keys ('001', '025')."""
-        test_file = tmp_path / "pokedex_backup.json"
-        handler = JsonBackupHandler(file_path=str(test_file))
 
-        sample_pokemons = [
-            {
-                "serial_number": 1,
-                "name": "Bulbasaur",
-                "type": "Grass/Poison",
-                "weight": "6.9 kg",
-                "height": "0.7 m",
-                "evolution_links": ["https://pokemondb.net/pokedex/ivysaur"]
-            },
-            {
-                "serial_number": 25,
-                "name": "Pikachu",
-                "type": "Electric",
-                "weight": "6.0 kg",
-                "height": "0.4 m",
-                "evolution_links": []
-            }
-        ]
+def test_process_range_with_cache_hit_and_out_of_bounds(service, mock_dependencies):
+    """
+    Test range request ("99-101"):
+    - 99: Found in DB (cache hit)
+    - 100: Not in DB, scraped successfully (cache miss)
+    - 101: Out of allowed range (1-100) -> goes to failed_list
+    """
+    mock_repo, mock_scraper, mock_backup = mock_dependencies
 
-        handler.save_pokemon_batch(sample_pokemons)
+    # Setup mock behaviors
+    mock_pokemon_db = MagicMock()
+    mock_pokemon_db.serial_number = 99
+    mock_pokemon_db.name = "Kingler"
+    mock_pokemon_db.type = "Water"
+    mock_pokemon_db.weight = "60.0 kg"
+    mock_pokemon_db.height = "1.3 m"
+    mock_pokemon_db.evolution_links = []
 
-        data = handler.load_backup()
+    # 99 returns DB object, 100 returns None (cache miss)
+    mock_repo.get_pokemon_from_db.side_effect = lambda identifier: (
+        mock_pokemon_db if identifier == 99 else None
+    )
 
-        assert "001" in data
-        assert "025" in data
-        assert data["001"]["name"] == "Bulbasaur"
-        assert data["025"]["name"] == "Pikachu"
-        assert data["001"]["serial_number"] == 1
+    # 100 is scraped from website
+    mock_scraper.scrape_pokemon.return_value = {
+        "serial_number": 100,
+        "name": "Voltorb",
+        "type": "Electric",
+        "weight": "10.4 kg",
+        "height": "0.5 m",
+        "evolution_links": ["Electrode"],
+    }
 
-    def test_save_pokemon_batch_merges_with_existing_records(self, tmp_path):
-        """Tests that subsequent batch saves merge new items without overwriting existing entries."""
-        test_file = tmp_path / "pokedex_backup.json"
-        handler = JsonBackupHandler(file_path=str(test_file))
+    test_request = {
+        "collection_type": "pokemon_range",
+        "collection_id": str(uuid.uuid4()),
+        "p_range": "99-101",
+    }
 
-        # First batch save
-        batch_one = [
-            {
-                "serial_number": 1,
-                "name": "Bulbasaur",
-                "type": "Grass/Poison",
-                "weight": "6.9 kg",
-                "height": "0.7 m",
-                "evolution_links": []
-            }
-        ]
-        handler.save_pokemon_batch(batch_one)
+    # Execute service method
+    response = service.process_collection_request(test_request)
 
-        # Second batch save
-        batch_two = [
-            {
-                "serial_number": 4,
-                "name": "Charmander",
-                "type": "Fire",
-                "weight": "8.5 kg",
-                "height": "0.6 m",
-                "evolution_links": []
-            }
-        ]
-        handler.save_pokemon_batch(batch_two)
+    # Assertions
+    assert isinstance(response, CollectorOutputResponse)
+    assert len(response.pokelist) == 2
+    assert response.failed_list == ["101"]
 
-        # Reload and verify both exist
-        data = handler.load_backup()
+    # Verify repository calls
+    mock_backup.save_pokemon_batch.assert_called_once()
+    mock_repo.save_to_receipt.assert_called_once_with(
+        collection_id=test_request["collection_id"],
+        collection_status="PARTIAL_SUCCESS",
+        collection_count_from_cache=1,
+        collection_count_from_website=1,
+    )
 
-        assert len(data) == 2
-        assert "001" in data
-        assert "004" in data
-        assert data["001"]["name"] == "Bulbasaur"
-        assert data["004"]["name"] == "Charmander"
+
+def test_process_number_out_of_range(service, mock_dependencies):
+    """Test single number request out of allowed range (e.g., 150)."""
+    mock_repo, _, _ = mock_dependencies
+
+    test_request = {
+        "collection_type": "pokemon_number",
+        "collection_id": str(uuid.uuid4()),
+        "p_number": 150,
+    }
+
+    response = service.process_collection_request(test_request)
+
+    assert len(response.pokelist) == 0
+    assert response.failed_list == ["150"]
+
+    # Verify receipt status is FAILED
+    mock_repo.save_to_receipt.assert_called_once_with(
+        collection_id=test_request["collection_id"],
+        collection_status="FAILED",
+        collection_count_from_cache=0,
+        collection_count_from_website=0,
+    )
+
+
+def test_process_name_request_success(service, mock_dependencies):
+    """Test valid name request ("pikachu") retrieved via web scraping."""
+    mock_repo, mock_scraper, mock_backup = mock_dependencies
+
+    # Not in cache
+    mock_repo.get_pokemon_from_db.return_value = None
+
+    # Scraped successfully
+    mock_scraper.scrape_pokemon.return_value = {
+        "serial_number": 25,
+        "name": "pikachu",
+        "type": "Electric",
+        "weight": "6.0 kg",
+        "height": "0.4 m",
+        "evolution_links": ["Raichu"],
+    }
+
+    test_request = {
+        "collection_type": "name",
+        "collection_id": str(uuid.uuid4()),
+        "p_name": "pikachu",
+    }
+
+    response = service.process_collection_request(test_request)
+
+    assert len(response.pokelist) == 1
+    assert response.pokelist[0].name == "pikachu"
+    assert response.failed_list == []
+
+    mock_repo.save_pokemon_to_db.assert_called_once()
+    mock_backup.save_pokemon_batch.assert_called_once()
+    mock_repo.save_to_receipt.assert_called_once_with(
+        collection_id=test_request["collection_id"],
+        collection_status="SUCCESS",
+        collection_count_from_cache=0,
+        collection_count_from_website=1,
+    )

@@ -44,7 +44,7 @@ class RangeCollectionRequest(BaseModel):
     
         return pok_range
 
-#TODO export the parse of range
+
 SqsMessage = Union[NameCollectionRequest, NumberCollectionRequest, RangeCollectionRequest]
 sqs_adapter = TypeAdapter(SqsMessage)
 

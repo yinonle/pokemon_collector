@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     INPUT_QUEUE_NAME: str = "sqs_in"
     OUTPUT_QUEUE_NAME: str = "sqs_out"
 
-    POKEMON_BASE_URL: str = "https://pokemondb.net"
+    POKEMON_BASE_URL: str = "https://pokemondb.net/pokedex/"
 
     
     USER_AGENT: str = (
