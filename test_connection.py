@@ -143,5 +143,4 @@ def test_process_name_request_success(service, mock_dependencies):
         collection_id=test_request["collection_id"],
         collection_status="SUCCESS",
         collection_count_from_cache=0,
-        collection_count_from_website=1,
-    )
+        collection_count_from_website=1)
