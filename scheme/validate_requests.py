@@ -11,7 +11,7 @@ class NameCollectionRequest(BaseModel):
 class NumberCollectionRequest(BaseModel):
     collection_type: Literal["pokemon_number"]
     collection_id: UUID
-    p_number: int = Field(gt=0, lt=101) 
+    p_number: int # = Field(gt=0, lt=101) 
 
     
     # @field_validator("p_number")
@@ -41,15 +41,8 @@ class RangeCollectionRequest(BaseModel):
 
         if start > end:
             raise ValueError("pokemon_range not optimize!")
-        
-        if not(1 <= start <= 100 and 1 <= end <= 100):
-            raise ValueError("pokemon_range is out of range!")
-        return pok_range
     
-    def parse_range(self) -> List[int]:
-        start_str, end_str = self.p_range.split("-")
-        return list(range(int(start_str), int(end_str) + 1))
-
+        return pok_range
 
 #TODO export the parse of range
 SqsMessage = Union[NameCollectionRequest, NumberCollectionRequest, RangeCollectionRequest]

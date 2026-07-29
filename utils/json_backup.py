@@ -3,7 +3,7 @@ import os
 from typing import Any, Dict, List
 from scheme.config import settings
 
-class JsonBackupHandler:
+class JsonBackupFile:
     def __init__(self, file_path: str = settings.JSON_FILE_PATH):
         self.file_path = file_path
 
@@ -26,7 +26,7 @@ class JsonBackupHandler:
                 data[format_key] = pokemon
 
         with open(self.file_path, "w", encoding = "utf-8") as file:
-            json.dump(data, file, indent=4, ensure_ascii= False)
+            json.dump(data, file, indent = 4, ensure_ascii = False)
 
         
 
