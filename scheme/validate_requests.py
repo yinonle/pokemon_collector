@@ -1,5 +1,5 @@
 from pydantic import BaseModel, TypeAdapter, field_validator, Field
-from typing import Literal, Union, List, Dict, Any
+from typing import Literal, Union, Optional, List, Dict, Any
 from uuid import UUID
 
 
@@ -25,7 +25,7 @@ class RangeCollectionRequest(BaseModel):
     collection_type: Literal["pokemon_range"]
     collection_id: UUID
     p_range: str  
-
+    
     @field_validator("p_range")
     @classmethod
     def parse_num_range(cls, pok_range: str) -> str:
@@ -65,5 +65,10 @@ class CollectorOutputResponse(BaseModel):
     collection_id: UUID
     pokelist: List[PokemonModel]
     failed_list: List[str]
+
+class ProcessResult(BaseModel):
+    valid: bool
+    data: Optional[CollectorOutputResponse] = None
+    error: Optional[str] = None
 
 

@@ -6,10 +6,13 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str = ("postgresql://postgres:postgres@127.0.0.1:5434/pokedex_db")
     AWS_REGION: str = "us-east-1"
-    SQS_ENDPOINT_URL: Optional[str] = (None)
+    #SQS_ENDPOINT_URL: Optional[str] = (None)
     
     INPUT_QUEUE_NAME: str = "sqs_in"
     OUTPUT_QUEUE_NAME: str = "sqs_out"
+
+    INPUT_QUEUE_URL: str = ""
+    OUTPUT_QUEUE_URL: str = ""
 
     POKEMON_BASE_URL: str = "https://pokemondb.net/pokedex/"
 

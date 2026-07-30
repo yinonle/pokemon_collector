@@ -17,8 +17,7 @@ class PokedexRepository:
 
 
     def get_pokemon_from_db(self, identifier_pok: Union[str, int]) -> Optional[PokedexModel]:
-        #‹
-
+       
         with self.session_maker() as db:
             if isinstance(identifier_pok, int):
                 return (db.query(PokedexModel).filter(PokedexModel.serial_number == identifier_pok).first())
@@ -27,12 +26,14 @@ class PokedexRepository:
                 return (db.query(PokedexModel).filter(PokedexModel.serial_number == int(identifier_pok)).first())
             
             else:
+                # Would "12" return the pokedexmodel for obj with id "2" because they are similar or just for 12?
                 return (db.query(PokedexModel).filter(PokedexModel.name.ilike(identifier_pok)).first())
 
 
     def save_pokemon_to_db(self, pokemon_data: dict) -> PokedexModel:
         with self.session_maker() as db:
             try:
+                # TODO input should already be validated model
                 new_pokemon = PokedexModel(
                     serial_number = pokemon_data.get("serial_number"),
                     name = pokemon_data.get("name"),
@@ -44,11 +45,9 @@ class PokedexRepository:
 
                 db.add(new_pokemon)
                 db.commit()
-                db.refresh(new_pokemon)
                 return new_pokemon
             
             except Exception as e:
-                #db.rollback()
                 raise e
     
 
@@ -66,10 +65,8 @@ class PokedexRepository:
                 )
                 db.add(new_receipt)
                 db.commit()
-                db.refresh(new_receipt)
                 return new_receipt
             
             except Exception as e:
-                #db.rollback()
                 raise e
         
