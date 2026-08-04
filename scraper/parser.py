@@ -13,7 +13,6 @@ class PokemonParser:
         if not vitals_table:
             raise ValueError("Failed to identify vitals table")
 
-        # TODO return validated model here
         return {
             "serial_number": self._extract_serial_number(vitals_table),
             "name": self._extract_name(soup),

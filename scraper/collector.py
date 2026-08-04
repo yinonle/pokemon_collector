@@ -1,6 +1,7 @@
-from typing import Any, Dict, List, Tuple, Union 
+from typing import Any, Dict, List, Tuple, Union, Optional
 
-from DB.pokedex import PokedexRepository
+from DB.models import PokedexModel
+from DB.pokedex import DataBaseHendle
 from scheme.validate_requests import (
     CollectorOutputResponse,
     NameCollectionRequest,
@@ -17,12 +18,11 @@ from utils.json_backup import JsonBackupFile
 class CollectorService:
     def __init__(
         self,
-        pokedex_repo: PokedexRepository = None,
+        pokedex_repo: DataBaseHendle = None,
         scraper: PokemonScraper = None,
-        backup_file: JsonBackupFile = None,
-    ):
+        backup_file: JsonBackupFile = None):
 
-        self.pokedex_repo = pokedex_repo or PokedexRepository()
+        self.pokedex_repo = pokedex_repo or DataBaseHendle()
         self.scraper = scraper or PokemonScraper()
         self.backup_file = backup_file or JsonBackupFile()
 
@@ -51,63 +51,53 @@ class CollectorService:
 
         return valid_identifiers, failed_list
 
-    def process_collection_request(
-        self, request_data: Dict[str, Any]
-    ) -> CollectorOutputResponse:
+    def save_to_model(self,raw_db_pokemon: PokedexModel) -> PokemonModel:
+         return PokemonModel(
+                serial_number = raw_db_pokemon.serial_number,
+                name = raw_db_pokemon.name,
+                type = raw_db_pokemon.type,
+                weight = raw_db_pokemon.weight,
+                height = raw_db_pokemon.height,
+                evolution_links = raw_db_pokemon.evolution_links or [],
+            ) 
 
+    async def get_pokemon(self, identifier: str | int) -> Tuple[Optional[PokemonModel], bool]:
+        db_pokemon = self.pokedex_repo.get_pokemon_from_db(identifier)
+        if db_pokemon:
+            return self.save_to_model(db_pokemon), True
+        
+        try:
+            scraped_pokemon = await self.scraper.scrape_pokemon(identifier) 
+            if scraped_pokemon:
+                pokemon_model = PokemonModel(**scraped_pokemon)
+                self.pokedex_repo.save_pokemon_to_db(pokemon_model)
+                return pokemon_model, False
+        except Exception as e:
+            raise e
+        return None, False
+
+    async def process_collection_request(self, request_data: Dict[str, Any]) -> CollectorOutputResponse:
         count_from_cache = 0
         count_from_website = 0
-
         pokelist = []
-        new_pokemon = []
 
-        # validate our requests.
-        # parser
-        # check the identifier wich one is good
         parsed_request = sqs_adapter.validate_python(request_data)
         collection_id = parsed_request.collection_id
         valid_identifiers, failed_list = self._extract_identifiers(parsed_request)
 
         for identifier in valid_identifiers:
-            db_pokemon = self.pokedex_repo.get_pokemon_from_db(identifier)
-
-            # pokemon is in the DB
-            if db_pokemon:
-                # TODO this is redundant, you are already returning a pokedex model why reinit?
-                pokemon_model = PokemonModel(
-                    serial_number=db_pokemon.serial_number,
-                    name=db_pokemon.name,
-                    type=db_pokemon.type,
-                    weight=db_pokemon.weight,
-                    height=db_pokemon.height,
-                    evolution_links=db_pokemon.evolution_links or [],
-                )  # this can have dfaults in pydantic basemodel
-
+            pokemon_model , is_from_cache = await self.get_pokemon(identifier)
+            if pokemon_model:
                 pokelist.append(pokemon_model)
-                new_pokemon.append(
-                    pokemon_model.model_dump()
-                )  # TODO: this isnt a new pokemon
-                count_from_cache += 1
-            # pokemon not in DB - cache miss
+                if is_from_cache:
+                    count_from_cache += 1
+                else:
+                    count_from_website += 1
             else:
-                try:
-                    scraped_pokemon = self.scraper.scrape_pokemon(identifier)  # return validated model or None if fail
+                failed_list.append(str(identifier))
 
-                    if scraped_pokemon:
-                        self.pokedex_repo.save_pokemon_to_db(scraped_pokemon)
-                        pokemon_model = PokemonModel(**scraped_pokemon)
-
-                        pokelist.append(pokemon_model)
-                        new_pokemon.append(scraped_pokemon)
-                        count_from_website += 1
-                    else:
-                        failed_list.append(str(identifier))
-                except Exception:
-                    failed_list.append(str(identifier))
-
-        # saving to json
-        if new_pokemon:
-            self.backup_file.save_pokemon_batch(new_pokemon)
+        if pokelist:
+            self.backup_file.save_pokemon_to_json(pokelist)
 
         status = ""
         if not failed_list:
@@ -116,15 +106,11 @@ class CollectorService:
             status = "FAILED"
 
         self.pokedex_repo.save_to_receipt(
-            collection_id=str(collection_id),
-            collection_status=status,
-            collection_count_from_cache=count_from_cache,
-            collection_count_from_website=count_from_website,
+            collection_id = str(collection_id),
+            collection_status = status,
+            collection_count_from_cache = count_from_cache,
+            collection_count_from_website = count_from_website,
         )
 
         return CollectorOutputResponse(
             collection_id = collection_id, pokelist = pokelist, failed_list = failed_list)
-
-    # 1. identify the request by the obj
-    # 2. parse the range request
-    # 3. move on all the var each request parse to a list

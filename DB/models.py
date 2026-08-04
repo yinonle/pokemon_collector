@@ -1,18 +1,19 @@
 from sqlalchemy import JSON, Column, DateTime, Integer, String
 from sqlalchemy.sql import func
+from sqlalchemy.orm import declarative_base
 
-from DB.data_base import Base
 
+Base = declarative_base()
 
 class PokedexModel(Base):
     __tablename__ = "pokedex"
 
-    p_number = Column(Integer, primary_key = True, index = True)
-    p_name = Column(String, unique = True, nullable = False, index = True)
-    types = Column(JSON)
+    serial_number = Column(Integer, primary_key = True, index = True)  
+    name = Column(String, unique = True, nullable = False, index = True)
+    type = Column(JSON)  
     height = Column(String)
     weight = Column(String)
-    evolutions = Column(JSON)
+    evolution_links = Column(JSON) 
 
 
 class ReceiptModel(Base):

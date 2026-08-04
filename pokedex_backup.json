@@ -1,0 +1,122 @@
+{
+    "001": {
+        "serial_number": 1,
+        "name": "Bulbasaur",
+        "type": "Grass/Poison",
+        "weight": "6.9 kg",
+        "height": "0.7 m",
+        "evolution_links": [
+            "https://pokemondb.net/pokedex/pokedex/bulbasaur",
+            "https://pokemondb.net/pokedex/pokedex/ivysaur",
+            "https://pokemondb.net/pokedex/pokedex/venusaur"
+        ]
+    },
+    "002": {
+        "serial_number": 2,
+        "name": "Ivysaur",
+        "type": "Grass/Poison",
+        "weight": "13.0 kg",
+        "height": "1.0 m",
+        "evolution_links": [
+            "https://pokemondb.net/pokedex/pokedex/bulbasaur",
+            "https://pokemondb.net/pokedex/pokedex/ivysaur",
+            "https://pokemondb.net/pokedex/pokedex/venusaur"
+        ]
+    },
+    "003": {
+        "serial_number": 3,
+        "name": "Venusaur",
+        "type": "Grass/Poison",
+        "weight": "100.0 kg",
+        "height": "2.0 m",
+        "evolution_links": [
+            "https://pokemondb.net/pokedex/pokedex/bulbasaur",
+            "https://pokemondb.net/pokedex/pokedex/ivysaur",
+            "https://pokemondb.net/pokedex/pokedex/venusaur"
+        ]
+    },
+    "004": {
+        "serial_number": 4,
+        "name": "Charmander",
+        "type": "Fire",
+        "weight": "8.5 kg",
+        "height": "0.6 m",
+        "evolution_links": [
+            "https://pokemondb.net/pokedex/pokedex/charmander",
+            "https://pokemondb.net/pokedex/pokedex/charmeleon",
+            "https://pokemondb.net/pokedex/pokedex/charizard"
+        ]
+    },
+    "005": {
+        "serial_number": 5,
+        "name": "Charmeleon",
+        "type": "Fire",
+        "weight": "19.0 kg",
+        "height": "1.1 m",
+        "evolution_links": [
+            "https://pokemondb.net/pokedex/pokedex/charmander",
+            "https://pokemondb.net/pokedex/pokedex/charmeleon",
+            "https://pokemondb.net/pokedex/pokedex/charizard"
+        ]
+    },
+    "006": {
+        "serial_number": 6,
+        "name": "Charizard",
+        "type": "Fire/Flying",
+        "weight": "90.5 kg",
+        "height": "1.7 m",
+        "evolution_links": [
+            "https://pokemondb.net/pokedex/pokedex/charmander",
+            "https://pokemondb.net/pokedex/pokedex/charmeleon",
+            "https://pokemondb.net/pokedex/pokedex/charizard"
+        ]
+    },
+    "007": {
+        "serial_number": 7,
+        "name": "Squirtle",
+        "type": "Water",
+        "weight": "9.0 kg",
+        "height": "0.5 m",
+        "evolution_links": [
+            "https://pokemondb.net/pokedex/pokedex/squirtle",
+            "https://pokemondb.net/pokedex/pokedex/wartortle",
+            "https://pokemondb.net/pokedex/pokedex/blastoise"
+        ]
+    },
+    "008": {
+        "serial_number": 8,
+        "name": "Wartortle",
+        "type": "Water",
+        "weight": "22.5 kg",
+        "height": "1.0 m",
+        "evolution_links": [
+            "https://pokemondb.net/pokedex/pokedex/squirtle",
+            "https://pokemondb.net/pokedex/pokedex/wartortle",
+            "https://pokemondb.net/pokedex/pokedex/blastoise"
+        ]
+    },
+    "009": {
+        "serial_number": 9,
+        "name": "Blastoise",
+        "type": "Water",
+        "weight": "85.5 kg",
+        "height": "1.6 m",
+        "evolution_links": [
+            "https://pokemondb.net/pokedex/pokedex/squirtle",
+            "https://pokemondb.net/pokedex/pokedex/wartortle",
+            "https://pokemondb.net/pokedex/pokedex/blastoise"
+        ]
+    },
+    "010": {
+        "serial_number": 10,
+        "name": "Caterpie",
+        "type": "Bug",
+        "weight": "2.9 kg",
+        "height": "0.3 m",
+        "evolution_links": [
+            "https://pokemondb.net/pokedex/pokedex/caterpie",
+            "https://pokemondb.net/pokedex/pokedex/metapod",
+            "https://pokemondb.net/pokedex/pokedex/butterfree"
+        ]
+    }
+}

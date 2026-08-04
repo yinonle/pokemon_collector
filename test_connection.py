@@ -75,7 +75,7 @@ def test_process_range_with_cache_hit_and_out_of_bounds(service, mock_dependenci
     assert response.failed_list == ["101"]
 
     # Verify repository calls
-    mock_backup.save_pokemon_batch.assert_called_once()
+    mock_backup.save_pokemon_to_json.assert_called_once()
     mock_repo.save_to_receipt.assert_called_once_with(
         collection_id=test_request["collection_id"],
         collection_status="PARTIAL_SUCCESS",
@@ -138,7 +138,7 @@ def test_process_name_request_success(service, mock_dependencies):
     assert response.failed_list == []
 
     mock_repo.save_pokemon_to_db.assert_called_once()
-    mock_backup.save_pokemon_batch.assert_called_once()
+    mock_backup.save_pokemon_to_json.assert_called_once()
     mock_repo.save_to_receipt.assert_called_once_with(
         collection_id=test_request["collection_id"],
         collection_status="SUCCESS",

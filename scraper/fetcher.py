@@ -1,19 +1,26 @@
 from typing import Union
 import httpx
-from scheme.config import settings
+import asyncio
+from config import settings
 
 
 class PokemonFetcher:
 
     def __init__(self, base_url: str = settings.POKEMON_BASE_URL):
-        self.base_url = base_url.rstrip("/")
+        self.base_url = base_url
         self.headers = {"User-Agent": settings.USER_AGENT}
         
-    def fetch_pokemon_html(self,identifier: Union[str, int]) -> str:
-        url = f"{self.base_url}{identifier}"
+    async def fetch_pokemon_html(self,identifier: Union[str, int]) -> str:
+        base = self.base_url.rstrip("/")
+        clean_id = str(identifier).strip("/")
+        
+        if base.endswith("pokedex"):
+            url = f"{base}/{clean_id}"
+        else:
+            url = f"{base}/pokedex/{clean_id}"
 
-        with httpx.Client(headers = self.headers, follow_redirects = True, timeout = 10.0) as client:
-            response = client.get(url)
+        async with httpx.AsyncClient(headers=self.headers, follow_redirects=True, timeout=10.0) as client:
+            response = await client.get(url)
 
             if response.status_code == 404: 
                 raise ValueError(f"Pokemon '{identifier}' not found on pokemondb.net")
