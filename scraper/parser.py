@@ -1,5 +1,6 @@
 from typing import Any, Dict, List
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse
 
 class PokemonParser:
 
@@ -53,5 +54,11 @@ class PokemonParser:
 
     def _extract_evolutions(self, soup: BeautifulSoup) -> List[str]:
         evo_links = soup.select("div.infocard-list-evo a.ent-name")
-        return [f"{self.base_url}{a['href']}" for a in evo_links if a.get("href")]
-    
+        parsed_base = urlparse(self.base_url)
+        domain = f"{parsed_base.scheme}://{parsed_base.netloc}"
+        
+        return [
+            f"{domain}{a['href']}" if a['href'].startswith("/") else f"{domain}/{a['href']}"
+            for a in evo_links
+            if a.get("href")
+        ]

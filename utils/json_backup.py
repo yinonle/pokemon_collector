@@ -11,10 +11,15 @@ class JsonBackupFile:
     def __init__(self, file_path: str = settings.JSON_FILE_PATH):
         self.file_path = BASE_DIR / file_path
 
+
+    def clear_backup(self) -> None:
+        with open(self.file_path, "w", encoding = "utf-8") as file:
+            json.dump({}, file)
+
+
     def load_backup(self) -> Dict[str, Any]:
         if not self.file_path.exists() or self.file_path.stat().st_size == 0:
             return {}
-        
         try:
             with open(self.file_path, "r", encoding="utf-8") as file:
                 return json.load(file)
@@ -24,7 +29,7 @@ class JsonBackupFile:
             raise e
             
     def save_pokemon_to_json(self, pokemon_list: List[Any]) -> None:
-        data = {}
+        data = self.load_backup()
 
         for pokemon in pokemon_list:
             if hasattr(pokemon, "model_dump"):

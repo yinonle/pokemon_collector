@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
 
-    DATABASE_URL: str = ("postgresql://postgres:postgres@127.0.0.1:5434/pokedex_db")
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@127.0.0.1:5434/pokedex_db"
     AWS_REGION: str = "us-east-1"
     AWS_ACCESS_KEY_ID: str = "testing"
     AWS_SECRET_ACCESS_KEY: str = "testing"

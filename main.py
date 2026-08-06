@@ -9,6 +9,7 @@ from message_processor import MessageProcessor
 from DB.pokedex import DataBaseHendle
 from sqs.create_sqs import SqsService
 from config import settings
+from utils.json_backup import JsonBackupFile
 
 
 logging.basicConfig(level = logging.INFO, format = "%(asctime)s - %(levelname)s - %(message)s")
@@ -17,8 +18,10 @@ async def main():
 
     with mock_aws():
         logging.info("Initializ Database tables...")
-        DataBaseHendle().init_db()
-
+        db = DataBaseHendle()
+        await db.init_db()
+        await db.clear_all_tables()
+        JsonBackupFile().clear_backup()
         sqs_service = SqsService()
         
         input_queue_url = sqs_service.create_queue(settings.INPUT_QUEUE_NAME)
@@ -28,14 +31,25 @@ async def main():
         logging.info(f"Mock Output Queue URL: {output_queue_url}")
 
         processor = MessageProcessor(sqs_service = sqs_service)
-
-        test_message = {
+        
+        test_messages = [{
+            "collection_type": "name", 
+            "collection_id": str(uuid.uuid4()),
+            "p_name": "poliwag"
+        },
+        {
+            "collection_type": "pokemon_number", 
+            "collection_id": str(uuid.uuid4()),
+            "p_number": 62
+        },
+        {
             "collection_type": "pokemon_range", 
             "collection_id": str(uuid.uuid4()),
-            "p_range": "1-10"
-        }
-
-        sqs_service.send_message(input_queue_url, json.dumps(test_message))
+            "p_range": "88-94"
+        },]
+        
+        for test_message in test_messages:
+            sqs_service.send_message(input_queue_url, json.dumps(test_message))
 
         logging.info("Pushed initial test message (Pikachu) into Mock SQS!")
         logging.info("Pokemon Collector Worker is running!")
@@ -53,4 +67,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-

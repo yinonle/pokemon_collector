@@ -1,4 +1,4 @@
-from pydantic import BaseModel, TypeAdapter, field_validator, Field
+from pydantic import BaseModel, TypeAdapter, model_validator, Field
 from typing import Literal, Union, Optional, List, Dict, Any
 from uuid import UUID
 
@@ -11,32 +11,37 @@ class NameCollectionRequest(BaseModel):
 class NumberCollectionRequest(BaseModel):
     collection_type: Literal["pokemon_number"]
     collection_id: UUID
-    p_number: int 
+    p_number: int = Field(ge=0, le=100)
 
 class RangeCollectionRequest(BaseModel):
     collection_type: Literal["pokemon_range"]
     collection_id: UUID
-    p_range: str 
-    
-    @field_validator("p_range")
-    @classmethod
-    def parse_num_range(cls, pok_range: str) -> str:
+    p_range: str    
+    p_start: Optional[int] = None
+    p_end: Optional[int] = None
+
+    @model_validator(mode = "after")
+    def parse_range(self) -> RangeCollectionRequest:
         try:
-            parts = pok_range.split("-")
+            parts = self.p_range.split("-")
+            if len(parts) != 2:
+                raise ValueError
             
             start, end = int(parts[0]), int(parts[1])
-            if start > end:
-                raise ValueError("pokemon_range not optimize")
-
+            if not (1 <= start <= 100 and 1 <= end <= 100 and start <= end):
+                raise ValueError("Range out of bounds or start > end")
+            
+            self.p_start = start
+            self.p_end = end
         except Exception:
-            raise ValueError("Your input format not valid please folow this format: START-END")
+            raise ValueError("Invalid format for p_range. Expected format: 'START-END' (e.g. '10-20').")
+    
+        return self
 
     
-        return pok_range
-
-
 SqsMessage = NameCollectionRequest | NumberCollectionRequest | RangeCollectionRequest
 sqs_adapter = TypeAdapter(SqsMessage)
+
 
 class PokemonModel(BaseModel):
     serial_number: int = Field(gt=0, lt=101)

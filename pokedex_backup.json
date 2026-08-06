@@ -1,122 +1,112 @@
 {
-    "001": {
-        "serial_number": 1,
-        "name": "Bulbasaur",
-        "type": "Grass/Poison",
-        "weight": "6.9 kg",
-        "height": "0.7 m",
-        "evolution_links": [
-            "https://pokemondb.net/pokedex/pokedex/bulbasaur",
-            "https://pokemondb.net/pokedex/pokedex/ivysaur",
-            "https://pokemondb.net/pokedex/pokedex/venusaur"
-        ]
-    },
-    "002": {
-        "serial_number": 2,
-        "name": "Ivysaur",
-        "type": "Grass/Poison",
-        "weight": "13.0 kg",
-        "height": "1.0 m",
-        "evolution_links": [
-            "https://pokemondb.net/pokedex/pokedex/bulbasaur",
-            "https://pokemondb.net/pokedex/pokedex/ivysaur",
-            "https://pokemondb.net/pokedex/pokedex/venusaur"
-        ]
-    },
-    "003": {
-        "serial_number": 3,
-        "name": "Venusaur",
-        "type": "Grass/Poison",
-        "weight": "100.0 kg",
-        "height": "2.0 m",
-        "evolution_links": [
-            "https://pokemondb.net/pokedex/pokedex/bulbasaur",
-            "https://pokemondb.net/pokedex/pokedex/ivysaur",
-            "https://pokemondb.net/pokedex/pokedex/venusaur"
-        ]
-    },
-    "004": {
-        "serial_number": 4,
-        "name": "Charmander",
-        "type": "Fire",
-        "weight": "8.5 kg",
+    "060": {
+        "serial_number": 60,
+        "name": "Poliwag",
+        "type": "Water",
+        "weight": "12.4 kg",
         "height": "0.6 m",
         "evolution_links": [
-            "https://pokemondb.net/pokedex/pokedex/charmander",
-            "https://pokemondb.net/pokedex/pokedex/charmeleon",
-            "https://pokemondb.net/pokedex/pokedex/charizard"
+            "https://pokemondb.net/pokedex/poliwag",
+            "https://pokemondb.net/pokedex/poliwhirl",
+            "https://pokemondb.net/pokedex/poliwrath",
+            "https://pokemondb.net/pokedex/politoed"
         ]
     },
-    "005": {
-        "serial_number": 5,
-        "name": "Charmeleon",
-        "type": "Fire",
-        "weight": "19.0 kg",
-        "height": "1.1 m",
+    "062": {
+        "serial_number": 62,
+        "name": "Poliwrath",
+        "type": "Water/Fighting",
+        "weight": "54.0 kg",
+        "height": "1.3 m",
         "evolution_links": [
-            "https://pokemondb.net/pokedex/pokedex/charmander",
-            "https://pokemondb.net/pokedex/pokedex/charmeleon",
-            "https://pokemondb.net/pokedex/pokedex/charizard"
+            "https://pokemondb.net/pokedex/poliwag",
+            "https://pokemondb.net/pokedex/poliwhirl",
+            "https://pokemondb.net/pokedex/poliwrath",
+            "https://pokemondb.net/pokedex/politoed"
         ]
     },
-    "006": {
-        "serial_number": 6,
-        "name": "Charizard",
-        "type": "Fire/Flying",
-        "weight": "90.5 kg",
-        "height": "1.7 m",
+    "088": {
+        "serial_number": 88,
+        "name": "Grimer",
+        "type": "Poison",
+        "weight": "30.0 kg",
+        "height": "0.9 m",
         "evolution_links": [
-            "https://pokemondb.net/pokedex/pokedex/charmander",
-            "https://pokemondb.net/pokedex/pokedex/charmeleon",
-            "https://pokemondb.net/pokedex/pokedex/charizard"
+            "https://pokemondb.net/pokedex/grimer",
+            "https://pokemondb.net/pokedex/muk",
+            "https://pokemondb.net/pokedex/grimer",
+            "https://pokemondb.net/pokedex/muk"
         ]
     },
-    "007": {
-        "serial_number": 7,
-        "name": "Squirtle",
+    "089": {
+        "serial_number": 89,
+        "name": "Muk",
+        "type": "Poison",
+        "weight": "30.0 kg",
+        "height": "1.2 m",
+        "evolution_links": [
+            "https://pokemondb.net/pokedex/grimer",
+            "https://pokemondb.net/pokedex/muk",
+            "https://pokemondb.net/pokedex/grimer",
+            "https://pokemondb.net/pokedex/muk"
+        ]
+    },
+    "090": {
+        "serial_number": 90,
+        "name": "Shellder",
         "type": "Water",
-        "weight": "9.0 kg",
-        "height": "0.5 m",
-        "evolution_links": [
-            "https://pokemondb.net/pokedex/pokedex/squirtle",
-            "https://pokemondb.net/pokedex/pokedex/wartortle",
-            "https://pokemondb.net/pokedex/pokedex/blastoise"
-        ]
-    },
-    "008": {
-        "serial_number": 8,
-        "name": "Wartortle",
-        "type": "Water",
-        "weight": "22.5 kg",
-        "height": "1.0 m",
-        "evolution_links": [
-            "https://pokemondb.net/pokedex/pokedex/squirtle",
-            "https://pokemondb.net/pokedex/pokedex/wartortle",
-            "https://pokemondb.net/pokedex/pokedex/blastoise"
-        ]
-    },
-    "009": {
-        "serial_number": 9,
-        "name": "Blastoise",
-        "type": "Water",
-        "weight": "85.5 kg",
-        "height": "1.6 m",
-        "evolution_links": [
-            "https://pokemondb.net/pokedex/pokedex/squirtle",
-            "https://pokemondb.net/pokedex/pokedex/wartortle",
-            "https://pokemondb.net/pokedex/pokedex/blastoise"
-        ]
-    },
-    "010": {
-        "serial_number": 10,
-        "name": "Caterpie",
-        "type": "Bug",
-        "weight": "2.9 kg",
+        "weight": "4.0 kg",
         "height": "0.3 m",
         "evolution_links": [
-            "https://pokemondb.net/pokedex/pokedex/caterpie",
-            "https://pokemondb.net/pokedex/pokedex/metapod",
-            "https://pokemondb.net/pokedex/pokedex/butterfree"
+            "https://pokemondb.net/pokedex/shellder",
+            "https://pokemondb.net/pokedex/cloyster"
+        ]
+    },
+    "091": {
+        "serial_number": 91,
+        "name": "Cloyster",
+        "type": "Water/Ice",
+        "weight": "132.5 kg",
+        "height": "1.5 m",
+        "evolution_links": [
+            "https://pokemondb.net/pokedex/shellder",
+            "https://pokemondb.net/pokedex/cloyster"
+        ]
+    },
+    "092": {
+        "serial_number": 92,
+        "name": "Gastly",
+        "type": "Ghost/Poison",
+        "weight": "0.1 kg",
+        "height": "1.3 m",
+        "evolution_links": [
+            "https://pokemondb.net/pokedex/gastly",
+            "https://pokemondb.net/pokedex/haunter",
+            "https://pokemondb.net/pokedex/gengar"
+        ]
+    },
+    "093": {
+        "serial_number": 93,
+        "name": "Haunter",
+        "type": "Ghost/Poison",
+        "weight": "0.1 kg",
+        "height": "1.6 m",
+        "evolution_links": [
+            "https://pokemondb.net/pokedex/gastly",
+            "https://pokemondb.net/pokedex/haunter",
+            "https://pokemondb.net/pokedex/gengar"
+        ]
+    },
+    "094": {
+        "serial_number": 94,
+        "name": "Gengar",
+        "type": "Ghost/Poison",
+        "weight": "40.5 kg",
+        "height": "1.5 m",
+        "evolution_links": [
+            "https://pokemondb.net/pokedex/gastly",
+            "https://pokemondb.net/pokedex/haunter",
+            "https://pokemondb.net/pokedex/gengar"
         ]
     }
 }

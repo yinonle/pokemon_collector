@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import List, Optional 
 from scraper.collector import CollectorService
 from sqs.create_sqs import SqsService
@@ -11,6 +12,13 @@ class MessageProcessor:
         self.collector_service = collector_service or CollectorService()
 
     async def process_messages(self, input_queue_url: str, output_queue_url: str) -> Optional[List[dict]]:
+        """
+        Processes messages from SQS:
+        - Reads messages from the input queue.
+        - Sends each payload to the collector service.
+        - Forwards results to the output queue.
+        - Delete processed messages from the input queue.
+        """
         messages = self.sqs_service.get_messages(input_queue_url) 
         if not messages:
             print("There are no requests in the sqs!")
@@ -31,9 +39,12 @@ class MessageProcessor:
                 if receipt_handle:
                     self.sqs_service.delete_message(input_queue_url, receipt_handle)
 
-                results.append({"valid": True, "data": response, "error": None})            
-                
+                results.append({"valid": True, "data": response, "error": None})
             except Exception as e: 
-                results.append({"valid": False, "data":None, "error": str(e)})   
+                logging.error(f"Error processing sqs message: {e}", exc_info=True)
 
-        return results  
+                if receipt_handle:
+                    self.sqs_service.delete_message(input_queue_url, receipt_handle)
+
+                results.append({"valid": False, "data": None, "error": str(e)})
+        return results

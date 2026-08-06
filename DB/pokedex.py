@@ -1,47 +1,46 @@
 from typing import Optional
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
 from DB.models import Base
 from DB.models import PokedexModel, ReceiptModel
 from scheme.validate_requests import PokemonModel
 from config import settings
-
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy import select, delete
 
 class DataBaseHendle:
 
     def __init__(self, db_url: str = settings.DATABASE_URL):
-        self.engine = create_engine(db_url)
-        self.session_maker = sessionmaker(autocommit = False, autoflush = False, bind = self.engine)
+        self.engine = create_async_engine(db_url)
+        self.session_maker = async_sessionmaker(bind = self.engine, class_ = AsyncSession)
 
-    def init_db(self):
-        Base.metadata.create_all(bind = self.engine)
+    async def init_db(self):
+        async with self.engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
 
-    def get_pokemon_from_db(self, identifier_pok: str | int) -> Optional[PokedexModel]:
-        with self.session_maker() as db:
+    async def get_pokemon_from_db(self, identifier_pok: str | int) -> Optional[PokedexModel]:
+        async with self.session_maker() as db:
             if isinstance(identifier_pok, int):
-                return (db.query(PokedexModel).filter(PokedexModel.serial_number == identifier_pok).first())
-                
+                query = select(PokedexModel).where(PokedexModel.serial_number == identifier_pok)                
             elif isinstance(identifier_pok, str) and identifier_pok.isdigit():
-                return (db.query(PokedexModel).filter(PokedexModel.serial_number == int(identifier_pok)).first())
-    
+                query = select(PokedexModel).where(PokedexModel.serial_number == int(identifier_pok))
             else:
-                return (db.query(PokedexModel).filter(PokedexModel.name.ilike(identifier_pok)).first())
+                query = select(PokedexModel).where(PokedexModel.name.ilike(identifier_pok))
+            result = await db.execute(query)
+            return result.scalars().first()
 
 
-    def save_pokemon_to_db(self, pokemon_data: PokemonModel) -> PokedexModel:
-        with self.session_maker() as db:
+    async def save_pokemon_to_db(self, pokemon_data: PokemonModel) -> PokedexModel:
+        async with self.session_maker() as db:
             try:
                 new_pokemon = PokedexModel(**pokemon_data.model_dump())
                 db.add(new_pokemon)
-                db.commit()
+                await db.commit()
                 return new_pokemon
             except Exception as e:
                 raise e
     
 
 
-    def save_to_receipt(
+    async def save_to_receipt(
         self, 
         collection_id: str, 
         collection_status: str, 
@@ -49,7 +48,7 @@ class DataBaseHendle:
         collection_count_from_website: int = 0
     ) -> ReceiptModel:
         
-        with self.session_maker() as db:
+        async with self.session_maker() as db:
             try:
                 new_receipt = ReceiptModel(
                     collection_id=collection_id,
@@ -58,11 +57,19 @@ class DataBaseHendle:
                     collection_count_from_website=collection_count_from_website,
                 )
                 db.add(new_receipt)
-                db.commit()
+                await db.commit()
                 return new_receipt
             except Exception as e:
                 raise e
 
-    def get_all_receipts(self):
-        with self.session_maker() as db:
-            return db.query(ReceiptModel).all()
+    async def get_all_receipts(self):
+        async with self.session_maker() as db:
+            query = select(ReceiptModel)
+            result = await db.execute(query)
+            return list(result.scalars().all())
+
+    async def clear_all_tables(self):
+        async with self.session_maker() as db:
+            await db.execute(delete(ReceiptModel))
+            await db.execute(delete(PokedexModel))
+            await db.commit()
